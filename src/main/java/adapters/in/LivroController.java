@@ -14,7 +14,7 @@ public class LivroController {
     private final Gson gson = new Gson();
 
     public void start(CadastrarLivroUseCase cadastrar, BuscarLivroPorIdUseCase buscar, ListarLivrosUseCase listar) {
-        Javalin app = Javalin.create().start(7000);
+        Javalin app = Javalin.create().start(8080);
 
         app.post("/livros", ctx -> {
             LivroDTO dto = gson.fromJson(ctx.body(), LivroDTO.class);
