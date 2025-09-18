@@ -47,6 +47,8 @@ public class ResendEmailService implements EmailSenderPort {
                 throw new RuntimeException("Erro ao enviar email: HTTP " + status);
             }
 
+            System.out.println("E-mail enviado com sucesso para: " + to + " sobre o livro: " + livro.getTitulo());
+
             conn.disconnect();
         } catch (Exception e) {
             throw new RuntimeException(e);

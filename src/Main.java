@@ -14,18 +14,26 @@ import java.sql.SQLException;
 public class Main {
     public static void main(String[] args) {
         try {
-            ResendEmailService emailService = new ResendEmailService(
-                    "apiKey",
-                    "onboarding@resend.dev",
-                    "seuEmailAqui@example.com"
-            );
+            String apiKey = config.ApplicationProperties.get("resend.apiKey");
+            String fromEmail = config.ApplicationProperties.get("resend.fromEmail");
+            String toEmail = config.ApplicationProperties.get("resend.toEmail");
 
-            Connection connection = DriverManager.getConnection("jdbc:h2:mem:livraria;DB_CLOSE_DELAY=-1", "sa", "");
-            JdbcLivroRepository repository = new JdbcLivroRepository(connection);
+            ResendEmailService emailService = new ResendEmailService(apiKey, fromEmail, toEmail);
 
-            CadastrarLivroUseCase cadastrar = new CadastrarLivroUseCase(repository, emailService);
-            BuscarLivroPorIdUseCase buscar = new BuscarLivroPorIdUseCase(repository);
-            ListarLivrosUseCase listar = new ListarLivrosUseCase(repository);
+            String adapter = config.ApplicationProperties.get("adapter.persistence");
+            JdbcLivroRepository livroRepository;
+
+            if ("jdbc".equalsIgnoreCase(adapter)) {
+                Connection connection = DriverManager.getConnection(
+                        "jdbc:h2:mem:livraria;DB_CLOSE_DELAY=-1", "sa", "");
+                livroRepository = new JdbcLivroRepository(connection);
+            } else {
+                throw new RuntimeException("Adapter não suportado: " + adapter);
+            }
+
+            CadastrarLivroUseCase cadastrar = new CadastrarLivroUseCase(livroRepository, emailService);
+            BuscarLivroPorIdUseCase buscar = new BuscarLivroPorIdUseCase(livroRepository);
+            ListarLivrosUseCase listar = new ListarLivrosUseCase(livroRepository);
 
             LivroController controller = new LivroController();
             controller.start(cadastrar, buscar, listar);
